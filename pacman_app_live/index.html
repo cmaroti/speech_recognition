@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Ms. Pacman</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script>
+    var url = "static/pacman.png"; //url to load image from
+    var refreshInterval = 100; //in ms
+    var img;
+
+    function renderImage(){
+        console.log("inside render image");
+        setInterval(function() {
+          var canvas = document.getElementById("canvas");
+          var context = canvas.getContext("2d");
+          img = new Image();
+
+          img.src = url + "?t=" + new Date().getTime();
+          img.onload = function() {
+              canvas.setAttribute("width", img.width)
+              canvas.setAttribute("height", img.height)
+              context.drawImage(this, 0, 0);
+            }}, refreshInterval)
+          };
+
+
+
+    </script>
+
+
+  </head>
+<body>
+    <!-- <body onload="JavaScript:renderImage();"> -->
+<h1>Ms. Pacman!</h1>
+<canvas id="canvas"> </canvas>
+
+
+    <script>
+    renderImage()
+
+    navigator.getUserMedia({audio: true}, initializeRecorder, errorCallback);
+    function initializeRecorder(stream){
+       audio_context = new AudioContext;
+       sampleRate = audio_context.sampleRate;
+       var audioInput = audio_context.createMediaStreamSource(stream);
+
+       console.log("Created media stream.");
+       console.log(sampleRate)
+
+       var bufferSize = 4096;
+       // record only 1 channel
+       var recorder = audio_context.createScriptProcessor(bufferSize, 1, 1);
+       // specify the processing function
+       recorder.onaudioprocess = recorderProcess;
+       // connect stream to our recorder
+       audioInput.connect(recorder);
+       // connect our recorder to the previous destination
+       recorder.connect(audio_context.destination);
+    }
+    function errorCallback() {
+      console.log('error!!!!')
+    }
+    function recorderProcess(e) {
+      var left_channel = e.inputBuffer.getChannelData(0);
+      $.ajax({
+        type: "POST",
+        contentType: "application/json; charset=utf-8",
+        url: "/pacman",
+        dataType: "json",
+        async: true,
+        data: JSON.stringify({"move": left_channel}),
+        success: function (data) {
+           console.log(data);
+           }
+        })
+      };
+
+      function convertFloat32ToInt16(buffer) {
+        var l = buffer.length;  //Buffer
+        var buf = new Int16Array(l/3);
+
+        while (l--) {
+          s = Math.max(-1, Math.min(1, buffer[l]));
+          buf[l] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+          //buf[l] = buffer[l]*0xFFFF; //old   //convert to 16 bit
+          }
+
+        return buf.buffer;
+      }
+
+
+
+
+
+
+
+
+
+    </script>
+
+  </body>
+</html>

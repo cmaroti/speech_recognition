@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Ms. Pacman</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script>
+    var url = "static/pacman.png"; //url to load image from
+    var refreshInterval = 100; //in ms
+    var img;
+
+    function renderImage(){
+        console.log("inside render image");
+        setInterval(function() {
+          var canvas = document.getElementById("canvas");
+          var context = canvas.getContext("2d");
+          img = new Image();
+
+          img.src = url + "?t=" + new Date().getTime();
+          img.onload = function() {
+              canvas.setAttribute("width", img.width)
+              canvas.setAttribute("height", img.height)
+              context.drawImage(this, 0, 0);
+            }}, refreshInterval)
+          };
+
+
+
+    </script>
+
+
+  </head>
+<body>
+    <!-- <body onload="JavaScript:renderImage();"> -->
+<h1>Test</h1>
+<canvas id="canvas"> </canvas>
+<br>
+<button id="button1" type="button">Up</button>
+<button id="button2" type="button">Down</button>
+<button id="button3" type="button">Left</button>
+<button id="button4" type="button">Right</button>
+
+    <script>
+    renderImage()
+
+     $('#button1').click(function(){
+       console.log("in script")
+       $.ajax({
+         type: "POST",
+         contentType: "application/json; charset=utf-8",
+         url: "/pacman",
+         dataType: "json",
+         async: true,
+         data: JSON.stringify({"move": "up.wav"}),
+         success: function (data) {
+            console.log(data);
+              // $('#myimg').html('<img class="img-responsive"  src="'+data.image_url+'"/>');
+            }
+         })
+       });
+
+       $('#button2').click(function(){
+         console.log("in script")
+         $.ajax({
+           type: "POST",
+           contentType: "application/json; charset=utf-8",
+           url: "/pacman",
+           dataType: "json",
+           async: true,
+           data: JSON.stringify({"move": "down.wav"}),
+           success: function (data) {
+              console.log(data);
+                // $('#myimg').html('<img class="img-responsive"  src="'+data.image_url+'"/>');
+              }
+           })
+         });
+
+         $('#button3').click(function(){
+           console.log("in script")
+           $.ajax({
+             type: "POST",
+             contentType: "application/json; charset=utf-8",
+             url: "/pacman",
+             dataType: "json",
+             async: true,
+             data: JSON.stringify({"move": "left.wav"}),
+             success: function (data) {
+                console.log(data);
+                  // $('#myimg').html('<img class="img-responsive"  src="'+data.image_url+'"/>');
+                }
+             })
+           });
+
+           $('#button4').click(function(){
+             console.log("in script")
+             $.ajax({
+               type: "POST",
+               contentType: "application/json; charset=utf-8",
+               url: "/pacman",
+               dataType: "json",
+               async: true,
+               data: JSON.stringify({"move": "right.wav"}),
+               success: function (data) {
+                  console.log(data);
+                    // $('#myimg').html('<img class="img-responsive"  src="'+data.image_url+'"/>');
+                  }
+               })
+             });
+
+    </script>
+
+  </body>
+</html>
