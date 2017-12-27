@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <style>
+    @font-face { font-family: PacFont; src: url('static/PacFont.ttf'); }
+          h1 {
+             font-family: PacFont
+          }
+    </style>
+    <title>Ms. Pacman</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script>
+    var url = "static/pacman.png"; //url to load image from
+    var url2 = "static/spec.png";
+    var refreshInterval = 100; //in ms
+    var img;
+    var img2;
+
+    function renderImage(){
+        console.log("inside render image");
+        setInterval(function() {
+          var canvas = document.getElementById("canvas");
+          var context = canvas.getContext("2d");
+          img = new Image();
+
+          var canvas2 = document.getElementById("spec_canv");
+          var context2 = canvas2.getContext("2d");
+          img2 = new Image();
+
+
+
+          img.onload = function() {
+              console.log('rendering image')
+              canvas.setAttribute("width", 320)
+              canvas.setAttribute("height", 210)
+              context.drawImage(this, 0, 0);
+
+            }
+
+          img2.onload = function() {
+              canvas2.setAttribute("width", 320)
+              canvas2.setAttribute("height", 100)
+              context2.drawImage(this, 0, 0);
+
+            }
+
+          img.src = url + "?t=" + new Date().getTime();
+          // console.log(url + "?t=" + new Date().getTime());
+
+          img2.src = url2 + "?t=" + new Date().getTime();
+          // console.log(url2 + "?t=" + new Date().getTime());
+
+          }, refreshInterval)
+          };
+
+
+
+    </script>
+
+
+  </head>
+<body>
+    <!-- <body onload="JavaScript:renderImage();"> -->
+<h1>Ms. Pacman</h1>
+<canvas id="canvas"> </canvas>
+<br>
+<canvas id='spec_canv'> </canvas>
+
+    <script>
+    renderImage()
+
+    navigator.getUserMedia({audio: true}, initializeRecorder, errorCallback);
+    function initializeRecorder(stream){
+       audio_context = new AudioContext;
+       sampleRate = audio_context.sampleRate;
+       var audioInput = audio_context.createMediaStreamSource(stream);
+
+       console.log("Created media stream.");
+       console.log(sampleRate)
+
+       var bufferSize = 4096;
+       // record only 1 channel
+       var recorder = audio_context.createScriptProcessor(bufferSize, 1, 1);
+       // specify the processing function
+       recorder.onaudioprocess = recorderProcess;
+       // connect stream to our recorder
+       audioInput.connect(recorder);
+       // connect our recorder to the previous destination
+       recorder.connect(audio_context.destination);
+    }
+    function errorCallback() {
+      console.log('error!!!!')
+    }
+    function recorderProcess(e) {
+      var left_channel = e.inputBuffer.getChannelData(0);
+      $.ajax({
+        type: "POST",
+        contentType: "application/json; charset=utf-8",
+        url: "/pacman",
+        dataType: "json",
+        async: true,
+        data: JSON.stringify({"move": left_channel}),
+        success: function (data) {
+           console.log(data);
+           }
+        })
+      };
+
+      function convertFloat32ToInt16(buffer) {
+        var l = buffer.length;  //Buffer
+        var buf = new Int16Array(l/3);
+
+        while (l--) {
+          s = Math.max(-1, Math.min(1, buffer[l]));
+          buf[l] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+          //buf[l] = buffer[l]*0xFFFF; //old   //convert to 16 bit
+          }
+
+        return buf.buffer;
+      }
+
+
+
+
+
+
+
+
+
+    </script>
+
+  </body>
+</html>
